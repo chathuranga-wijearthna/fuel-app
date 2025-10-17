@@ -49,7 +49,7 @@ export default function OrdersTable({
                 Tail Number
               </th>
               <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider border-b border-gray-600">
-                Airport
+                ICAO
               </th>
               <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider border-b border-gray-600">
                 Volume (Gallons)
