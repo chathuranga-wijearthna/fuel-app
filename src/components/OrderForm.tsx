@@ -84,6 +84,7 @@ export default function OrderForm({ onSubmit, successMessage, errorMessage }: { 
                 value={airportIcao}
                 onChange={e => setAirportIcao(e.target.value.toUpperCase())}
                 placeholder="OMDB"
+                required
                 className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
             </div>

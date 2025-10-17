@@ -6,8 +6,8 @@ import { AppRole } from "../interfaces/types";
 
 export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "register" | "logged">("login");
-  const [email, setEmail] = useState("user@example.com");
-  const [password, setPassword] = useState("string");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [role, setRole] = useState<AppRole>("AIRCRAFT_OPERATOR");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
