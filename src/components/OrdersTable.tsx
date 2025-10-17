@@ -122,7 +122,11 @@ export default function OrdersTable({
                       <button
                         onClick={() => openConfirm(o.id, next)}
                         title={`Mark as ${next}`}
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1 px-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 cursor-pointer"
+                        className={`${
+                          next === "COMPLETED"
+                            ? "bg-green-600 hover:bg-green-700 focus:ring-green-500"
+                            : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
+                        } text-white font-medium py-1 px-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 cursor-pointer`}
                       >
                         {next}
                       </button>

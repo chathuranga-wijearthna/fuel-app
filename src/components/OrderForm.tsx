@@ -23,12 +23,12 @@ export default function OrderForm({ onSubmit, successMessage, errorMessage }: { 
   function isValid(): boolean {
     if (!tailNumber || !airportIcao || !requestedFuelVolume || !start || !end) return false;
     if (!/^[A-Z]{4}$/.test(airportIcao)) return false;
-    if (Number(requestedFuelVolume) <= 1000) return false;
+    if (Number(requestedFuelVolume) <= 1000.00) return false;
     if (new Date(end).getTime() <= new Date(start).getTime()) return false;
     return true;
   }
 
-  const volumeTooLow = requestedFuelVolume !== '' && Number(requestedFuelVolume) < 1000;
+  const volumeTooLow = requestedFuelVolume !== '' && Number(requestedFuelVolume) < 1001.00;
   const invalidIcao = airportIcao !== '' && !/^[A-Z]{4}$/.test(airportIcao);
 
   async function submit(e: React.FormEvent) {
@@ -115,8 +115,8 @@ export default function OrderForm({ onSubmit, successMessage, errorMessage }: { 
               </label>
               <input
                 type="number"
-                step="0.001"
-                min={1000}
+                step="0.01"
+                min={1001.00}
                 value={requestedFuelVolume}
                 onChange={e => setRequestedFuelVolume(e.target.value === '' ? '' : Number(e.target.value))}
                 required
