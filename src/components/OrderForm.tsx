@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import ConfirmModal from './ConfirmModal'
 
 export default function OrderForm({ onSubmit, successMessage, errorMessage }: { onSubmit: (payload: any) => Promise<any> | any, successMessage?: string | null, errorMessage?: string | null }) {
   const [tailNumber, setTailNumber] = useState('')
@@ -26,18 +27,29 @@ export default function OrderForm({ onSubmit, successMessage, errorMessage }: { 
     return true;
   }
 
+  const volumeTooLow = requestedFuelVolume !== '' && Number(requestedFuelVolume) < 1000;
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!isValid()) return;
-
-    await onSubmit({
+    setPendingPayload({
       tailNumber: tailNumber.trim(),
       airportIcao: airportIcao.trim().toUpperCase(),
       requestedFuelVolume: Number(requestedFuelVolume),
       deliveryWindowStart: start,
       deliveryWindowEnd: end
     })
+    setConfirmOpen(true)
+  }
 
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pendingPayload, setPendingPayload] = useState<any | null>(null)
+
+  async function confirmSubmit() {
+    if (!pendingPayload) return
+    await onSubmit(pendingPayload)
+    setConfirmOpen(false)
+    setPendingPayload(null)
     // Reset form after successful submission
     setTailNumber('')
     setAirportIcao('')
@@ -102,8 +114,12 @@ export default function OrderForm({ onSubmit, successMessage, errorMessage }: { 
                 onChange={e => setRequestedFuelVolume(e.target.value === '' ? '' : Number(e.target.value))}
                 required
                 placeholder="Enter fuel volume in gallons (> 1000)"
-                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                aria-invalid={volumeTooLow}
+                className={`w-full px-4 py-3 bg-gray-700/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-200 ${volumeTooLow ? 'border-red-500 focus:ring-red-500' : 'border-gray-600 focus:ring-blue-500'}`}
               />
+              {volumeTooLow && (
+                <p className="mt-2 text-sm text-red-400">Fuel volume must be greater than 1000.</p>
+              )}
             </div>
 
             {/* Delivery Window - Two Column Layout */}
@@ -167,6 +183,15 @@ export default function OrderForm({ onSubmit, successMessage, errorMessage }: { 
           <p className="text-gray-500 text-sm">Fuel Orders Management System</p>
         </div>
       </div>
+      <ConfirmModal
+        open={confirmOpen}
+        title="Submit Order"
+        message="Are you sure you want to submit this fuel order?"
+        confirmText="Submit"
+        cancelText="Cancel"
+        onConfirm={confirmSubmit}
+        onCancel={() => { setConfirmOpen(false); setPendingPayload(null) }}
+      />
     </div>
   )
 }

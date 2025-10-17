@@ -1,4 +1,6 @@
+import { useState } from "react";
 import type { OrderResponse, OrderStatus } from "../interfaces/types";
+import ConfirmModal from "./ConfirmModal";
 
 export default function OrdersTable({
   orders,
@@ -7,10 +9,33 @@ export default function OrdersTable({
   orders: OrderResponse[];
   onAdvance: (id: string, next: OrderStatus) => void;
 }) {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
+  const [pendingNextStatus, setPendingNextStatus] = useState<OrderStatus | null>(null);
+
   function nextStatus(s: OrderStatus): OrderStatus | null {
     if (s === "PENDING") return "CONFIRMED";
     if (s === "CONFIRMED") return "COMPLETED";
     return null;
+  }
+
+  function openConfirm(orderId: string, next: OrderStatus) {
+    setPendingOrderId(orderId);
+    setPendingNextStatus(next);
+    setConfirmOpen(true);
+  }
+
+  function closeConfirm() {
+    setConfirmOpen(false);
+    setPendingOrderId(null);
+    setPendingNextStatus(null);
+  }
+
+  function confirmAction() {
+    if (pendingOrderId && pendingNextStatus) {
+      onAdvance(pendingOrderId, pendingNextStatus);
+    }
+    closeConfirm();
   }
 
   return (
@@ -95,7 +120,7 @@ export default function OrdersTable({
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     {next && (
                       <button
-                        onClick={() => onAdvance(o.id, next)}
+                        onClick={() => openConfirm(o.id, next)}
                         title={`Mark as ${next}`}
                         className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1 px-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 cursor-pointer"
                       >
@@ -118,6 +143,13 @@ export default function OrdersTable({
           </p>
         </div>
       )}
+      <ConfirmModal
+        open={confirmOpen}
+        title="Confirm Action"
+        message={`Are you sure you want to mark this order as ${pendingNextStatus ?? ""}?`}
+        onCancel={closeConfirm}
+        onConfirm={confirmAction}
+      />
     </div>
   );
 }
