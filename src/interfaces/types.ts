@@ -31,3 +31,5 @@ export interface JwtPayload {
 export interface Authority {
     authority: string
 }
+
+export type RoleToPath = Record<AppRole, string>

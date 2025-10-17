@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-export default function OrderForm({ onSubmit }: { onSubmit: (payload: any) => void }) {
+export default function OrderForm({ onSubmit, successMessage, errorMessage }: { onSubmit: (payload: any) => Promise<any> | any, successMessage?: string | null, errorMessage?: string | null }) {
   const [tailNumber, setTailNumber] = useState('')
   const [airportIcao, setAirportIcao] = useState('')
   const [requestedFuelVolume, setRequestedFuelVolume] = useState<number | ''>('')
@@ -19,18 +19,31 @@ export default function OrderForm({ onSubmit }: { onSubmit: (payload: any) => vo
     return `${year}-${month}-${day}T${hours}:${minutes}`
   }
 
-  function submit(e: React.FormEvent) {
+  function isValid(): boolean {
+    if (!tailNumber || !airportIcao || !requestedFuelVolume || !start || !end) return false;
+    if (Number(requestedFuelVolume) <= 1000) return false;
+    if (new Date(end).getTime() <= new Date(start).getTime()) return false;
+    return true;
+  }
+
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (!isValid()) return;
 
-    if (!tailNumber || !airportIcao || !requestedFuelVolume || !start || !end) return;
-
-    onSubmit({
+    await onSubmit({
       tailNumber: tailNumber.trim(),
       airportIcao: airportIcao.trim().toUpperCase(),
       requestedFuelVolume: Number(requestedFuelVolume),
       deliveryWindowStart: start,
       deliveryWindowEnd: end
     })
+
+    // Reset form after successful submission
+    setTailNumber('')
+    setAirportIcao('')
+    setRequestedFuelVolume('')
+    setStart('')
+    setEnd('')
   }
 
   return (
@@ -83,10 +96,11 @@ export default function OrderForm({ onSubmit }: { onSubmit: (payload: any) => vo
               <input
                 type="number"
                 step="0.001"
+                min={1000}
                 value={requestedFuelVolume}
                 onChange={e => setRequestedFuelVolume(e.target.value === '' ? '' : Number(e.target.value))}
                 required
-                placeholder="Enter fuel volume in gallons"
+                placeholder="Enter fuel volume in gallons (> 1000)"
                 className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
             </div>
@@ -124,10 +138,23 @@ export default function OrderForm({ onSubmit }: { onSubmit: (payload: any) => vo
               </div>
             </div>
 
+            {/* Inline Messages Above Submit */}
+            {successMessage && (
+              <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+                <p className="text-green-400 text-sm font-medium">{successMessage}</p>
+              </div>
+            )}
+            {errorMessage && (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3" role="alert" aria-live="polite">
+                <p className="text-red-400 text-sm font-medium">{errorMessage}</p>
+              </div>
+            )}
+
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+              disabled={!isValid()}
+              className={`w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform ${!isValid() ? 'opacity-60 cursor-not-allowed' : 'hover:scale-[1.02]'} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800`}
             >
               Submit Order
             </button>

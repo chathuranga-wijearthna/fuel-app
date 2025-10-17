@@ -96,9 +96,10 @@ export default function OrdersTable({
                     {next && (
                       <button
                         onClick={() => onAdvance(o.id, next)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1 px-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+                        title={`Mark as ${next}`}
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1 px-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 cursor-pointer"
                       >
-                        Mark {next}
+                        {next}
                       </button>
                     )}
                   </td>

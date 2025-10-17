@@ -48,7 +48,10 @@ export function isAuthenticated(): boolean {
 
     const p = getJwtPayload(token);
 
-    if (!p?.exp) return true;
-
-    return Date.now() < p.exp * 1000;
+    // Require a valid expiration; consider small clock skew tolerance
+    if (!p?.exp) return false;
+    const now = Date.now();
+    const expiresAt = p.exp * 1000;
+    const skewMs = 30 * 1000; // 30s tolerance
+    return now + skewMs < expiresAt;
 }

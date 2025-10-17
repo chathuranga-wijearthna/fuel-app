@@ -3,13 +3,23 @@ import LoginPage from "./pages/Login";
 import OperatorOrderForm from "./pages/OperatorOrderForm";
 import ManagerOrders from "./pages/ManagerOrders";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import { clearToken, getToken, isAuthenticated } from "./utils/auth";
+import {clearToken, getRolesFromToken, getToken, isAuthenticated} from "./utils/auth";
+import { AppRole } from "./interfaces/types";
 import "./App.css";
 
 function HomeRedirect() {
   const token = getToken();
-  if (!token) return <Navigate to="/login" replace />;
-  return <Navigate to="/login" replace />;
+  if (!isAuthenticated() || !token) return <Navigate to="/login" replace />;
+
+  const roles = getRolesFromToken(token);
+
+  const roleToPath: Record<AppRole, string> = {
+    AIRCRAFT_OPERATOR: "/operator",
+    OPERATIONS_MANAGER: "/manager",
+  };
+
+  const targetPath = roles.map((r) => roleToPath[r]).find(Boolean);
+  return <Navigate to={targetPath ?? "/login"} replace />;
 }
 
 export default function App() {
@@ -45,7 +55,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomeRedirect />} />
 
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login" element={isAuthenticated() ? <HomeRedirect /> : <LoginPage />} />
 
         <Route
           path="/operator"
