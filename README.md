@@ -81,4 +81,3 @@ Note: The backend API runs separately and should be reachable from the browser a
 
 ### Author & License
 - **Author**: Chathuranga Wijerathna
-- **License**: MIT
