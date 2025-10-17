@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import OrdersTable from "../components/OrdersTable";
 import { listOrders, updateStatus } from "../utils/api";
 import type {
@@ -15,6 +15,20 @@ export default function ManagerOrders() {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
+  const invalidIcao = filter !== "" && !/^[A-Z]{4}$/.test(filter);
+
+  // Auto-refresh when filter is cleared (avoid double-run on initial mount)
+  const didMount = useRef(false);
+  useEffect(() => {
+    if (!didMount.current) {
+      didMount.current = true;
+      return;
+    }
+    if (filter === "") {
+      setPage(0);
+      refresh(0, size);
+    }
+  }, [filter]);
 
   async function refresh(p = page, s = size) {
     setLoading(true);
@@ -67,20 +81,26 @@ export default function ManagerOrders() {
                 <input
                   type="text"
                   value={filter}
-                  onChange={(e) => setFilter(e.target.value.toUpperCase())}
+                  onChange={(e) => setFilter(e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4))}
                   placeholder="OMDB"
-                  className="flex-1 px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  maxLength={4}
+                  aria-invalid={invalidIcao}
+                  className={`flex-1 px-4 py-2 bg-gray-700/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-200 ${invalidIcao ? 'border-red-500 focus:ring-red-500' : 'border-gray-600 focus:ring-blue-500'}`}
                 />
                 <button
+                  disabled={invalidIcao || (filter !== "" && filter.length !== 4)}
                   onClick={() => {
                     setPage(0);
                     refresh(0, size);
                   }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+                  className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-800 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
                 >
                   Apply
                 </button>
               </div>
+              {invalidIcao && (
+                <p className="mt-2 text-sm text-red-400">ICAO must be exactly 4 letters (A–Z).</p>
+              )}
             </div>
 
             {/* Page Size */}

@@ -22,12 +22,14 @@ export default function OrderForm({ onSubmit, successMessage, errorMessage }: { 
 
   function isValid(): boolean {
     if (!tailNumber || !airportIcao || !requestedFuelVolume || !start || !end) return false;
+    if (!/^[A-Z]{4}$/.test(airportIcao)) return false;
     if (Number(requestedFuelVolume) <= 1000) return false;
     if (new Date(end).getTime() <= new Date(start).getTime()) return false;
     return true;
   }
 
   const volumeTooLow = requestedFuelVolume !== '' && Number(requestedFuelVolume) < 1000;
+  const invalidIcao = airportIcao !== '' && !/^[A-Z]{4}$/.test(airportIcao);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -94,11 +96,16 @@ export default function OrderForm({ onSubmit, successMessage, errorMessage }: { 
               <input
                 type="text"
                 value={airportIcao}
-                onChange={e => setAirportIcao(e.target.value.toUpperCase())}
+                onChange={e => setAirportIcao(e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4))}
                 placeholder="OMDB"
                 required
-                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                maxLength={4}
+                aria-invalid={invalidIcao}
+                className={`w-full px-4 py-3 bg-gray-700/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-200 ${invalidIcao ? 'border-red-500 focus:ring-red-500' : 'border-gray-600 focus:ring-blue-500'}`}
               />
+              {invalidIcao && (
+                <p className="mt-2 text-sm text-red-400">ICAO must be exactly 4 letters (A–Z).</p>
+              )}
             </div>
 
             {/* Fuel Volume Field */}
