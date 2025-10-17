@@ -128,7 +128,7 @@ export default function OrdersTable({
                             : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
                         } text-white font-medium py-1 px-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 cursor-pointer`}
                       >
-                        {next}
+                        {next === "COMPLETED" ? "Complete" : next === "CONFIRMED" ? "Confirm" : next}
                       </button>
                     )}
                   </td>
