@@ -82,7 +82,7 @@ export async function createOrder(payload: {
   deliveryWindowStart: string;
   deliveryWindowEnd: string;
 }): Promise<OrderResponse> {
-  return request<OrderResponse>(`/v1/orders`, {
+  return request<OrderResponse>(`/v1/order`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(payload),
@@ -102,7 +102,7 @@ export async function listOrders(
     size: String(params.size ?? 10),
   });
 
-  return request<PageResponse<OrderResponse>>(`/v1/orders/list?${param.toString()}`, {
+  return request<PageResponse<OrderResponse>>(`/v1/order/list?${param.toString()}`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(payload),
@@ -113,7 +113,7 @@ export async function updateStatus(
   id: string,
   status: OrderStatus
 ): Promise<OrderResponse> {
-  return request<OrderResponse>(`/v1/orders/${id}/status`, {
+  return request<OrderResponse>(`/v1/order/${id}/status`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify({ status }),
